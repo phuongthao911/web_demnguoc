@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đếm ngược</title>
+    <style>
+        :root {
+            --bg-a: #fffdf3;
+            --bg-b: #fff3c4;
+            --pale: #fff8dd;
+            --card: #fffef8;
+            --line: #f3e2a0;
+            --ink: #5b4a1e;
+            --ink-soft: #9c8949;
+            --yellow: #ffd966;
+            --yellow-deep: #e8b923;
+            --accent: #f2b705;
+            --shadow: rgba(232, 185, 35, 0.22);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            font-family: "Segoe UI", system-ui, sans-serif;
+            color: var(--ink);
+            overflow: hidden;
+            position: relative;
+            background:
+                radial-gradient(circle at 12% 15%, var(--bg-b) 0%, transparent 42%),
+                radial-gradient(circle at 88% 85%, var(--yellow) 0%, transparent 38%),
+                linear-gradient(160deg, var(--bg-a) 0%, #fffaea 55%, var(--bg-a) 100%);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .petal {
+                animation: none !important;
+                display: none;
+            }
+        }
+
+        .petals {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .petal {
+            position: absolute;
+            top: -30px;
+            width: 16px;
+            height: 16px;
+            background: radial-gradient(circle at 30% 30%, #ffffff, var(--yellow) 55%, var(--yellow-deep) 100%);
+            border-radius: 0 70% 0 70%;
+            opacity: 0.9;
+            animation-name: petal-fall;
+            animation-timing-function: ease-in;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes petal-fall {
+            0% {
+                transform: translate(0, -5vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.9;
+            }
+
+            90% {
+                opacity: 0.85;
+            }
+
+            100% {
+                transform: translate(var(--drift, 40px), 108vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .card {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 480px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            padding: 34px 28px;
+            box-shadow: 0 20px 50px var(--shadow);
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 23px;
+            font-weight: 800;
+            color: var(--ink);
+        }
+
+        h1 .em {
+            display: inline-block;
+            animation: sway 3s ease-in-out infinite;
+        }
+
+        @keyframes sway {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            25% {
+                transform: rotate(-10deg);
+            }
+
+            75% {
+                transform: rotate(10deg);
+            }
+        }
+
+        p.sub {
+            margin: 0 0 24px;
+            color: var(--ink-soft);
+            font-size: 14px;
+        }
+
+        .picker {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        .picker input {
+            flex: 1;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1.5px solid var(--line);
+            background: var(--pale);
+            color: var(--ink);
+            font-size: 15px;
+        }
+
+        .picker input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(242, 183, 5, 0.22);
+        }
+
+        .units {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .unit {
+            background: var(--pale);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 16px 6px;
+            transition: transform .2s ease;
+        }
+
+        .unit:hover {
+            transform: translateY(-3px);
+        }
+
+        .unit .num {
+            font-size: 30px;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            color: var(--yellow-deep);
+        }
+
+        .unit .label {
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--ink-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .status {
+            font-size: 14px;
+            color: var(--ink-soft);
+            min-height: 20px;
+        }
+
+        .status.done {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        @media (max-width: 380px) {
+            .unit .num {
+                font-size: 24px;
+            }
+
+            .picker {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="petals" id="petals"></div>
+
+    <div class="card">
+        <h1><span class="em">🌼</span> Đếm ngược</h1>
+        <p class="sub">Chọn ngày giờ, xem thời gian còn lại đến hiện tại</p>
+
+        <div class="picker">
+            <input type="datetime-local" id="targetInput">
+        </div>
+
+        <div class="units">
+            <div class="unit">
+                <div class="num" id="days">00</div>
+                <div class="label">Ngày</div>
+            </div>
+            <div class="unit">
+                <div class="num" id="hours">00</div>
+                <div class="label">Giờ</div>
+            </div>
+            <div class="unit">
+                <div class="num" id="minutes">00</div>
+                <div class="label">Phút</div>
+            </div>
+            <div class="unit">
+                <div class="num" id="seconds">00</div>
+                <div class="label">Giây</div>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        const petalContainer = document.getElementById("petals");
+        const PETAL_COUNT = 18;
+        for (let i = 0; i < PETAL_COUNT; i++) {
+            const petal = document.createElement("div");
+            petal.className = "petal";
+            const left = Math.random() * 100;
+            const size = 10 + Math.random() * 12;
+            const duration = 9 + Math.random() * 10;
+            const delay = Math.random() * -14;
+            const drift = (Math.random() * 120 - 60) + "px";
+            petal.style.left = left + "vw";
+            petal.style.width = size + "px";
+            petal.style.height = size + "px";
+            petal.style.animationDuration = duration + "s";
+            petal.style.animationDelay = delay + "s";
+            petal.style.setProperty("--drift", drift);
+            petalContainer.appendChild(petal);
+        }
+
+        const targetInput = document.getElementById("targetInput");
+        const daysEl = document.getElementById("days");
+        const hoursEl = document.getElementById("hours");
+        const minutesEl = document.getElementById("minutes");
+        const secondsEl = document.getElementById("seconds");
+        const statusEl = document.getElementById("status");
+
+        function pad(n) {
+            return String(n).padStart(2, "0");
+        }
+
+        function render() {
+            if (!targetInput.value) {
+                daysEl.textContent = "00";
+                hoursEl.textContent = "00";
+                minutesEl.textContent = "00";
+                secondsEl.textContent = "00";
+                statusEl.textContent = "Chọn ngày giờ để bắt đầu đếm";
+                statusEl.classList.remove("done");
+                return;
+            }
+
+            const target = new Date(targetInput.value);
+            const now = new Date();
+            let diffMs = now - target;
+
+            const isFuture = diffMs < 0;
+            diffMs = Math.abs(diffMs);
+
+            const totalSeconds = Math.floor(diffMs / 1000);
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            daysEl.textContent = pad(days);
+            hoursEl.textContent = pad(hours);
+            minutesEl.textContent = pad(minutes);
+            secondsEl.textContent = pad(seconds);
+
+            if (isFuture) {
+                statusEl.textContent = "Còn lại đến thời điểm đã chọn";
+                statusEl.classList.remove("done");
+            } else {
+                statusEl.textContent = "Đã trôi qua kể từ thời điểm đã chọn";
+                statusEl.classList.add("done");
+            }
+        }
+
+        targetInput.addEventListener("input", render);
+
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        targetInput.value = now.toISOString().slice(0, 16);
+
+        render();
+        setInterval(render, 1000);
+    </script>
+
+</body>
+
+</html>
