@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đếm ngược</title>
+    <title>Danh sách đếm ngược</title>
     <style>
         :root {
             --bg-a: #fffdf3;
@@ -15,324 +15,404 @@
             --ink: #5b4a1e;
             --ink-soft: #9c8949;
             --yellow: #ffd966;
-            --yellow-deep: #e8b923;
-            --accent: #f2b705;
+            --yellow-deep: #d69a00;
+            --accent: #e8b923;
+            --danger: #c85d43;
             --shadow: rgba(232, 185, 35, 0.22);
         }
 
-        * {
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            height: 100%;
-        }
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
+            padding: 32px 20px;
             font-family: "Segoe UI", system-ui, sans-serif;
             color: var(--ink);
-            overflow: hidden;
-            position: relative;
             background:
-                radial-gradient(circle at 12% 15%, var(--bg-b) 0%, transparent 42%),
-                radial-gradient(circle at 88% 85%, var(--yellow) 0%, transparent 38%),
-                linear-gradient(160deg, var(--bg-a) 0%, #fffaea 55%, var(--bg-a) 100%);
+                radial-gradient(circle at 10% 12%, var(--bg-b) 0%, transparent 35%),
+                radial-gradient(circle at 90% 88%, var(--yellow) 0%, transparent 35%),
+                linear-gradient(160deg, var(--bg-a), #fffaea 55%, var(--bg-a));
         }
 
-        @media (prefers-reduced-motion: reduce) {
-            .petal {
-                animation: none !important;
-                display: none;
-            }
-        }
-
-        .petals {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            overflow: hidden;
-            z-index: 0;
-        }
-
+        .petals { position: fixed; inset: 0; overflow: hidden; pointer-events: none; }
         .petal {
-            position: absolute;
-            top: -30px;
-            width: 16px;
-            height: 16px;
-            background: radial-gradient(circle at 30% 30%, #ffffff, var(--yellow) 55%, var(--yellow-deep) 100%);
-            border-radius: 0 70% 0 70%;
-            opacity: 0.9;
-            animation-name: petal-fall;
-            animation-timing-function: ease-in;
-            animation-iteration-count: infinite;
+            position: absolute; top: -30px; width: 15px; height: 15px;
+            border-radius: 0 70% 0 70%; opacity: .8;
+            background: radial-gradient(circle at 30% 30%, #fff, var(--yellow) 55%, var(--yellow-deep));
+            animation: fall linear infinite;
         }
+        @keyframes fall { to { transform: translate(var(--drift), 110vh) rotate(360deg); opacity: 0; } }
 
-        @keyframes petal-fall {
-            0% {
-                transform: translate(0, -5vh) rotate(0deg);
-                opacity: 0;
-            }
-
-            10% {
-                opacity: 0.9;
-            }
-
-            90% {
-                opacity: 0.85;
-            }
-
-            100% {
-                transform: translate(var(--drift, 40px), 108vh) rotate(360deg);
-                opacity: 0;
-            }
+        main {
+            position: relative;
+            max-width: 1060px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+            gap: 24px;
+            align-items: start;
         }
 
         .card {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 480px;
-            background: var(--card);
+            background: rgba(255, 254, 248, .94);
             border: 1px solid var(--line);
             border-radius: 22px;
-            padding: 34px 28px;
+            padding: 28px;
             box-shadow: 0 20px 50px var(--shadow);
-            text-align: center;
         }
 
-        h1 {
-            margin: 0 0 6px;
-            font-size: 23px;
-            font-weight: 800;
-            color: var(--ink);
+        h1, h2, p { margin-top: 0; }
+        h1 { font-size: 25px; margin-bottom: 8px; }
+        h2 { font-size: 20px; margin-bottom: 4px; }
+        .sub { color: var(--ink-soft); font-size: 14px; line-height: 1.5; }
+
+        form { display: grid; gap: 16px; margin-top: 26px; }
+        label { display: grid; gap: 7px; font-size: 14px; font-weight: 700; }
+        input {
+            width: 100%; padding: 12px 13px; border: 1.5px solid var(--line);
+            border-radius: 11px; background: var(--pale); color: var(--ink); font: inherit;
+        }
+        input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(242, 183, 5, .2); }
+
+        button {
+            border: 0; border-radius: 11px; padding: 12px 16px; cursor: pointer;
+            font: inherit; font-weight: 700; transition: transform .18s ease, filter .18s ease;
+        }
+        button:hover { transform: translateY(-2px); filter: brightness(.98); }
+        .save-btn { color: #584300; background: var(--yellow); }
+        .cancel-btn { display: none; color: var(--ink); background: #f6edc8; }
+        .cancel-btn.visible { display: block; }
+        .form-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .form-actions .save-btn:only-child { grid-column: 1 / -1; }
+        .form-message { min-height: 20px; margin: 0; color: var(--danger); font-size: 13px; }
+
+        .list-card { padding-bottom: 18px; }
+        .list-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+        .count-badge { white-space: nowrap; color: var(--ink-soft); background: var(--pale); border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; font-size: 13px; }
+        .countdown-list {
+            height: 420px; overflow-y: auto; padding: 4px 8px 4px 0; margin-top: 20px;
+            scrollbar-color: var(--accent) var(--pale); scrollbar-width: thin;
+        }
+        .countdown-list::-webkit-scrollbar { width: 8px; }
+        .countdown-list::-webkit-scrollbar-track { background: var(--pale); border-radius: 99px; }
+        .countdown-list::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 99px; }
+
+        .countdown-item { background: var(--pale); border: 1px solid var(--line); border-radius: 15px; padding: 16px; margin-bottom: 12px; }
+        .item-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+        .item-title { margin: 0; font-size: 17px; overflow-wrap: anywhere; }
+        .target-date { margin: 5px 0 0; color: var(--ink-soft); font-size: 13px; }
+        .item-actions { display: flex; gap: 6px; }
+        .icon-btn { padding: 7px 9px; font-size: 15px; background: #fffdf2; color: var(--ink); border: 1px solid var(--line); }
+        .delete-btn { color: var(--danger); }
+        .time-left { margin: 15px 0 0; font-size: 22px; font-weight: 800; color: var(--yellow-deep); font-variant-numeric: tabular-nums; }
+        .time-left span { color: var(--ink-soft); font-size: 12px; font-weight: 600; margin-right: 7px; }
+        .empty { display: grid; place-items: center; height: 100%; text-align: center; color: var(--ink-soft); border: 2px dashed var(--line); border-radius: 15px; padding: 24px; }
+
+        .modal-backdrop {
+            display: none; position: fixed; z-index: 5; inset: 0; place-items: center;
+            padding: 20px; background: rgba(91, 74, 30, .34);
+        }
+        .modal-backdrop.open { display: grid; }
+        .modal { width: min(100%, 440px); background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 24px; box-shadow: 0 20px 55px rgba(91, 74, 30, .28); }
+        .modal h2 { margin-bottom: 10px; }
+        .modal p { color: var(--ink-soft); line-height: 1.5; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+        .modal .secondary-btn { background: #f6edc8; color: var(--ink); }
+        .modal .danger-btn { background: var(--danger); color: white; }
+        .modal form { margin-top: 18px; }
+
+        @media (max-width: 760px) {
+            body { padding: 20px 14px; }
+            main { grid-template-columns: 1fr; }
+            .card { padding: 23px 20px; }
+            .countdown-list { height: 380px; }
         }
 
-        h1 .em {
-            display: inline-block;
-            animation: sway 3s ease-in-out infinite;
-        }
-
-        @keyframes sway {
-
-            0%,
-            100% {
-                transform: rotate(0deg);
-            }
-
-            25% {
-                transform: rotate(-10deg);
-            }
-
-            75% {
-                transform: rotate(10deg);
-            }
-        }
-
-        p.sub {
-            margin: 0 0 24px;
-            color: var(--ink-soft);
-            font-size: 14px;
-        }
-
-        .picker {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 28px;
-        }
-
-        .picker input {
-            flex: 1;
-            padding: 12px 14px;
-            border-radius: 12px;
-            border: 1.5px solid var(--line);
-            background: var(--pale);
-            color: var(--ink);
-            font-size: 15px;
-        }
-
-        .picker input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(242, 183, 5, 0.22);
-        }
-
-        .units {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 18px;
-        }
-
-        .unit {
-            background: var(--pale);
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 16px 6px;
-            transition: transform .2s ease;
-        }
-
-        .unit:hover {
-            transform: translateY(-3px);
-        }
-
-        .unit .num {
-            font-size: 30px;
-            font-weight: 800;
-            font-variant-numeric: tabular-nums;
-            color: var(--yellow-deep);
-        }
-
-        .unit .label {
-            margin-top: 4px;
-            font-size: 12px;
-            color: var(--ink-soft);
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        .status {
-            font-size: 14px;
-            color: var(--ink-soft);
-            min-height: 20px;
-        }
-
-        .status.done {
-            color: var(--accent);
-            font-weight: 700;
-        }
-
-        @media (max-width: 380px) {
-            .unit .num {
-                font-size: 24px;
-            }
-
-            .picker {
-                flex-direction: column;
-            }
-        }
+        @media (prefers-reduced-motion: reduce) { .petal { display: none; } button { transition: none; } }
     </style>
 </head>
 
 <body>
-
     <div class="petals" id="petals"></div>
 
-    <div class="card">
-        <h1><span class="em">🌼</span> Đếm ngược</h1>
-        <p class="sub">Chọn ngày giờ, xem thời gian còn lại đến hiện tại</p>
+    <main>
+        <section class="card" aria-labelledby="formTitle">
+            <h1 id="formTitle">🌼 Tạo đếm ngược</h1>
+            <p class="sub">Lưu những cột mốc quan trọng để không bỏ lỡ chúng.</p>
 
-        <div class="picker">
-            <input type="datetime-local" id="targetInput">
+            <form id="countdownForm">
+                <label>
+                    Tiêu đề
+                    <input id="titleInput" type="text" maxlength="80" placeholder="Ví dụ: Sinh nhật mẹ" required>
+                </label>
+                <label>
+                    Ngày và giờ cần đếm ngược
+                    <input id="targetInput" type="datetime-local" required>
+                </label>
+                <p class="form-message" id="formMessage" aria-live="polite"></p>
+                <div class="form-actions">
+                    <button class="save-btn" id="saveBtn" type="submit">Lưu đếm ngược</button>
+                    <button class="cancel-btn" id="cancelBtn" type="button">Hủy chỉnh sửa</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="card list-card" aria-labelledby="listTitle">
+            <div class="list-header">
+                <div>
+                    <h2 id="listTitle">Danh sách đếm ngược</h2>
+                    <p class="sub">Các mốc thời gian bạn đã lưu</p>
+                </div>
+                <span class="count-badge" id="countBadge">0 mục</span>
+            </div>
+            <div class="countdown-list" id="countdownList"></div>
+        </section>
+    </main>
+
+    <div class="modal-backdrop" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <div class="modal">
+            <h2 id="confirmTitle">Xác nhận</h2>
+            <p id="confirmMessage"></p>
+            <div class="modal-actions">
+                <button class="secondary-btn" id="confirmCancel" type="button">Hủy</button>
+                <button id="confirmAccept" type="button">Đồng ý</button>
+            </div>
         </div>
+    </div>
 
-        <div class="units">
-            <div class="unit">
-                <div class="num" id="days">00</div>
-                <div class="label">Ngày</div>
-            </div>
-            <div class="unit">
-                <div class="num" id="hours">00</div>
-                <div class="label">Giờ</div>
-            </div>
-            <div class="unit">
-                <div class="num" id="minutes">00</div>
-                <div class="label">Phút</div>
-            </div>
-            <div class="unit">
-                <div class="num" id="seconds">00</div>
-                <div class="label">Giây</div>
-            </div>
+    <div class="modal-backdrop" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+        <div class="modal">
+            <h2 id="editTitle">Chỉnh sửa đếm ngược</h2>
+            <form id="editForm">
+                <label>Tiêu đề<input id="editTitleInput" type="text" maxlength="80" required></label>
+                <label>Ngày và giờ cần đếm ngược<input id="editTargetInput" type="datetime-local" required></label>
+                <p class="form-message" id="editMessage" aria-live="polite"></p>
+                <div class="modal-actions">
+                    <button class="secondary-btn" id="editCancel" type="button">Hủy</button>
+                    <button class="save-btn" type="submit">Lưu thay đổi</button>
+                </div>
+            </form>
         </div>
-
-        <div class="status" id="status"></div>
     </div>
 
     <script>
-        const petalContainer = document.getElementById("petals");
-        const PETAL_COUNT = 18;
-        for (let i = 0; i < PETAL_COUNT; i++) {
-            const petal = document.createElement("div");
-            petal.className = "petal";
-            const left = Math.random() * 100;
-            const size = 10 + Math.random() * 12;
-            const duration = 9 + Math.random() * 10;
-            const delay = Math.random() * -14;
-            const drift = (Math.random() * 120 - 60) + "px";
-            petal.style.left = left + "vw";
-            petal.style.width = size + "px";
-            petal.style.height = size + "px";
-            petal.style.animationDuration = duration + "s";
-            petal.style.animationDelay = delay + "s";
-            petal.style.setProperty("--drift", drift);
-            petalContainer.appendChild(petal);
-        }
-
+        const STORAGE_KEY = "countdown-items";
+        const form = document.getElementById("countdownForm");
+        const titleInput = document.getElementById("titleInput");
         const targetInput = document.getElementById("targetInput");
-        const daysEl = document.getElementById("days");
-        const hoursEl = document.getElementById("hours");
-        const minutesEl = document.getElementById("minutes");
-        const secondsEl = document.getElementById("seconds");
-        const statusEl = document.getElementById("status");
+        const formMessage = document.getElementById("formMessage");
+        const saveBtn = document.getElementById("saveBtn");
+        const cancelBtn = document.getElementById("cancelBtn");
+        const listEl = document.getElementById("countdownList");
+        const countBadge = document.getElementById("countBadge");
+        const confirmModal = document.getElementById("confirmModal");
+        const confirmTitle = document.getElementById("confirmTitle");
+        const confirmMessage = document.getElementById("confirmMessage");
+        const confirmAccept = document.getElementById("confirmAccept");
+        const confirmCancel = document.getElementById("confirmCancel");
+        const editModal = document.getElementById("editModal");
+        const editForm = document.getElementById("editForm");
+        const editTitleInput = document.getElementById("editTitleInput");
+        const editTargetInput = document.getElementById("editTargetInput");
+        const editMessage = document.getElementById("editMessage");
+        const editCancel = document.getElementById("editCancel");
+        let pendingAction = null;
+        let editingId = null;
+        let items = loadItems();
 
-        function pad(n) {
-            return String(n).padStart(2, "0");
+        function loadItems() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                return Array.isArray(saved) ? saved : [];
+            } catch { return []; }
         }
 
-        function render() {
-            if (!targetInput.value) {
-                daysEl.textContent = "00";
-                hoursEl.textContent = "00";
-                minutesEl.textContent = "00";
-                secondsEl.textContent = "00";
-                statusEl.textContent = "Chọn ngày giờ để bắt đầu đếm";
-                statusEl.classList.remove("done");
+        function saveItems() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+        }
+
+        function formatDate(value) {
+            return new Intl.DateTimeFormat("vi-VN", { dateStyle: "full", timeStyle: "short" }).format(new Date(value));
+        }
+
+        function getRemaining(target) {
+            const seconds = Math.floor((new Date(target).getTime() - Date.now()) / 1000);
+            if (seconds <= 0) return null;
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return { days, hours, minutes, secs };
+        }
+
+        function renderList() {
+            items.sort((a, b) => new Date(a.target) - new Date(b.target));
+            countBadge.textContent = `${items.length} mục`;
+
+            if (!items.length) {
+                listEl.innerHTML = '<div class="empty">Chưa có ngày đếm ngược nào.<br>Hãy tạo mốc đầu tiên của bạn!</div>';
                 return;
             }
 
-            const target = new Date(targetInput.value);
-            const now = new Date();
-            let diffMs = now - target;
-
-            const isFuture = diffMs < 0;
-            diffMs = Math.abs(diffMs);
-
-            const totalSeconds = Math.floor(diffMs / 1000);
-            const days = Math.floor(totalSeconds / 86400);
-            const hours = Math.floor((totalSeconds % 86400) / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
-
-            daysEl.textContent = pad(days);
-            hoursEl.textContent = pad(hours);
-            minutesEl.textContent = pad(minutes);
-            secondsEl.textContent = pad(seconds);
-
-            if (isFuture) {
-                statusEl.textContent = "Còn lại đến thời điểm đã chọn";
-                statusEl.classList.remove("done");
-            } else {
-                statusEl.textContent = "Đã trôi qua kể từ thời điểm đã chọn";
-                statusEl.classList.add("done");
-            }
+            listEl.innerHTML = items.map(item => {
+                const remaining = getRemaining(item.target);
+                const timeText = remaining
+                    ? `<span>${remaining.days} ngày</span>${String(remaining.hours).padStart(2, "0")}:${String(remaining.minutes).padStart(2, "0")}:${String(remaining.secs).padStart(2, "0")}`
+                    : "Đã hết hạn";
+                return `
+                    <article class="countdown-item">
+                        <div class="item-top">
+                            <div>
+                                <h3 class="item-title">${escapeHtml(item.title)}</h3>
+                                <p class="target-date">${formatDate(item.target)}</p>
+                            </div>
+                            <div class="item-actions">
+                                <button class="icon-btn" type="button" data-action="edit" data-id="${item.id}" aria-label="Chỉnh sửa ${escapeHtml(item.title)}">✏️</button>
+                                <button class="icon-btn delete-btn" type="button" data-action="delete" data-id="${item.id}" aria-label="Xóa ${escapeHtml(item.title)}">🗑️</button>
+                            </div>
+                        </div>
+                        <p class="time-left">${timeText}</p>
+                    </article>`;
+            }).join("");
         }
 
-        targetInput.addEventListener("input", render);
+        function escapeHtml(text) {
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
-        const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        targetInput.value = now.toISOString().slice(0, 16);
+        function resetForm() {
+            form.reset();
+            editingId = null;
+            formMessage.textContent = "";
+            saveBtn.textContent = "Lưu đếm ngược";
+            cancelBtn.classList.remove("visible");
+        }
 
-        render();
-        setInterval(render, 1000);
+        function removeExpiredOnLoad() {
+            const expired = items.filter(item => !getRemaining(item.target));
+            if (!expired.length) return;
+            items = items.filter(item => getRemaining(item.target));
+            saveItems();
+            alert(`Đã xóa ${expired.length} mốc đếm ngược đã hết hạn.`);
+        }
+
+        form.addEventListener("submit", event => {
+            event.preventDefault();
+            const title = titleInput.value.trim();
+            const target = targetInput.value;
+            if (!title || !target) return;
+            if (!getRemaining(target)) {
+                formMessage.textContent = "Vui lòng chọn ngày giờ ở tương lai.";
+                return;
+            }
+
+            if (editingId) {
+                items = items.map(item => item.id === editingId ? { ...item, title, target } : item);
+            } else {
+                items.push({ id: crypto.randomUUID(), title, target });
+            }
+            saveItems();
+            resetForm();
+            renderList();
+        });
+
+        cancelBtn.addEventListener("click", resetForm);
+
+        function openConfirm(action, item) {
+            pendingAction = { action, item };
+            const isDelete = action === "delete";
+            confirmTitle.textContent = isDelete ? "Xác nhận xóa" : "Xác nhận chỉnh sửa";
+            confirmMessage.textContent = isDelete
+                ? `Bạn có chắc muốn xóa “${item.title}” không?`
+                : `Bạn có muốn chỉnh sửa “${item.title}” không?`;
+            confirmAccept.textContent = isDelete ? "Xóa" : "Chỉnh sửa";
+            confirmAccept.className = isDelete ? "danger-btn" : "save-btn";
+            confirmModal.classList.add("open");
+            confirmAccept.focus();
+        }
+
+        function closeConfirm() {
+            confirmModal.classList.remove("open");
+            pendingAction = null;
+        }
+
+        function openEdit(item) {
+            editingId = item.id;
+            editTitleInput.value = item.title;
+            editTargetInput.value = item.target;
+            editMessage.textContent = "";
+            editModal.classList.add("open");
+            editTitleInput.focus();
+        }
+
+        function closeEdit() {
+            editModal.classList.remove("open");
+            editForm.reset();
+            editingId = null;
+        }
+
+        confirmCancel.addEventListener("click", closeConfirm);
+        confirmModal.addEventListener("click", event => {
+            if (event.target === confirmModal) closeConfirm();
+        });
+        editCancel.addEventListener("click", closeEdit);
+        editModal.addEventListener("click", event => {
+            if (event.target === editModal) closeEdit();
+        });
+
+        confirmAccept.addEventListener("click", () => {
+            if (!pendingAction) return;
+            const { action, item } = pendingAction;
+            closeConfirm();
+            if (action === "delete") {
+                items = items.filter(entry => entry.id !== item.id);
+                saveItems();
+                renderList();
+            } else {
+                openEdit(item);
+            }
+        });
+
+        editForm.addEventListener("submit", event => {
+            event.preventDefault();
+            const title = editTitleInput.value.trim();
+            const target = editTargetInput.value;
+            if (!title || !target) return;
+            if (!getRemaining(target)) {
+                editMessage.textContent = "Vui lòng chọn ngày giờ ở tương lai.";
+                return;
+            }
+            items = items.map(item => item.id === editingId ? { ...item, title, target } : item);
+            saveItems();
+            closeEdit();
+            renderList();
+        });
+
+        listEl.addEventListener("click", event => {
+            const button = event.target.closest("button[data-action]");
+            if (!button) return;
+            const item = items.find(entry => entry.id === button.dataset.id);
+            if (item) openConfirm(button.dataset.action, item);
+        });
+
+        const petalContainer = document.getElementById("petals");
+        for (let i = 0; i < 18; i++) {
+            const petal = document.createElement("div");
+            petal.className = "petal";
+            petal.style.left = `${Math.random() * 100}vw`;
+            petal.style.animationDuration = `${9 + Math.random() * 10}s`;
+            petal.style.animationDelay = `${Math.random() * -14}s`;
+            petal.style.setProperty("--drift", `${Math.random() * 120 - 60}px`);
+            petalContainer.appendChild(petal);
+        }
+
+        removeExpiredOnLoad();
+        renderList();
+        setInterval(renderList, 1000);
     </script>
-
 </body>
 
 </html>
